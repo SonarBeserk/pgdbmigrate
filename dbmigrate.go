@@ -8,71 +8,14 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-
-	"github.com/gocql/gocql"
 )
 
-// Database interface needs to be inmplemented to migrate a new type of database
+// Database interface needs to be implemented to migrate a new type of database
 
 type Database interface {
 	CreateMigrationsTable() error
 	HasMigrated(filename string) (bool, error)
 	Migrate(filename string, migration string) error
-}
-
-// CassandraDatabase migrates Cassandra databases
-
-type CassandraDatabase struct {
-	readerSession *gocql.Session
-	writerSession *gocql.Session
-}
-
-func (cassandra *CassandraDatabase) CreateMigrationsTable() error {
-	err := cassandra.writerSession.Query(`
-		CREATE TABLE migrations (
-			name TEXT,
-			created_at TIMEUUID,
-			PRIMARY KEY (name)
-		);
-	`).Exec()
-	if err != nil {
-		if !strings.Contains(err.Error(), "Cannot add already existing column family") {
-			return err
-		}
-	}
-	fmt.Println("Created migrations table")
-	return nil
-}
-
-func (cassandra *CassandraDatabase) HasMigrated(filename string) (bool, error) {
-	var count int
-	iter := cassandra.readerSession.Query(`
-		SELECT COUNT(*) FROM migrations WHERE name = ?
-	`, filename).Iter()
-	if !iter.Scan(&count) {
-		return false, iter.Close()
-	}
-	if err := iter.Close(); err != nil {
-		return false, err
-	}
-	return count > 0, nil
-}
-
-func (cassandra *CassandraDatabase) Migrate(filename string, migration string) error {
-	if err := cassandra.writerSession.Query(migration).Exec(); err != nil {
-		return err
-	}
-	return cassandra.writerSession.Query(`
-		INSERT INTO migrations(name, created_at)
-		VALUES(?, NOW())
-	`, filename).Exec()
-}
-
-func NewCassandraDatabase(readerSession *gocql.Session, writerSession *gocql.Session) *CassandraDatabase {
-	return &CassandraDatabase{
-		readerSession: readerSession,
-		writerSession: writerSession,
-	}
 }
 
 // PostgresDatabase migrates Postgresql databases
