@@ -1,9 +1,8 @@
-[![Build Status](https://travis-ci.org/tanel/dbmigrate.svg?branch=master)](https://travis-ci.org/tanel/dbmigrate)
+Fork of https://github.com/tanel/dbmigrate with cassandra support stripped out to leave a lightweight PostgreSQL library
 
 Supported databases
 -------------------
 * PostgreSQL
-* Cassandra
 
 Install
 -------
