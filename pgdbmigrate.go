@@ -1,4 +1,4 @@
-package dbmigrate
+package pgdbmigrate
 
 import (
 	"database/sql"
