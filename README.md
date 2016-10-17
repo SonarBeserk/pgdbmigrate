@@ -1,4 +1,4 @@
-Fork of https://github.com/tanel/dbmigrate with cassandra support stripped out to leave a lightweight PostgreSQL library
+Fork of https://github.com/tanel/dbmigrate with Cassandra support stripped out to leave a lightweight PostgreSQL library
 
 Supported databases
 -------------------
@@ -25,7 +25,7 @@ import (
   "log"
   "path/filepath"
 
-  "github.com/tanel/dbmigrate"
+  "github.com/SonarBeserk/pgdbmigrate"
 )
 ```
 
@@ -40,26 +40,7 @@ run the migrations. Assuming you have a variable called **db** that points to sq
 and the migrations are located in **db/migrate**, execute the following code:
 
 ```golang
-if err := dbmigrate.Run(db, filepath.Join("db", "migrate")); err != nil {
+if err := pgdbmigrate.Run(db, filepath.Join("db", "migrate")); err != nil {
   log.Fatal(err)
-}
-```
-
-Use with Cassandra
-------------------
-**Make sure the migrations have an .cql ending.**
-
-After app startup, open a session and run migrations:
-
-```golang
-session, err := cluster.CreateSession()
-if err != nil {
-	return err
-}
-defer session.Close()
-
-cassandraMigrations := dbmigrate.NewCassandraDatabase(session, session)
-if err := dbmigrate.ApplyMigrations(cassandraMigrations, filepath.Join("db", "migrate")); err != nil {
-  return err
 }
 ```
